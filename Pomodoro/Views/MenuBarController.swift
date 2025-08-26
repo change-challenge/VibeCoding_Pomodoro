@@ -50,6 +50,10 @@ final class MenuBarController {
         menu.addItem(withTitle: "리셋 (⌥⌘R)", action: #selector(reset), keyEquivalent: "")
         menu.addItem(.separator())
         
+        menu.addItem(withTitle: "타이머 윈도우 열기/닫기", action: #selector(toggleTimerWindow), keyEquivalent: "t")
+        
+        menu.addItem(.separator())
+        
         let todayItem = NSMenuItem(title: "오늘: --", action: nil, keyEquivalent: "")
         todayItem.isEnabled = false
         menu.addItem(todayItem)
@@ -72,6 +76,10 @@ final class MenuBarController {
     
     @objc private func reset() { 
         timer?.reset() 
+    }
+    
+    @objc private func toggleTimerWindow() {
+        AppEnvironment.shared.floating.toggle()
     }
     
     @objc private func openPrefs() { 

@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-final class FloatingTimerWindowController {
+final class FloatingTimerWindowController: NSObject {
     private var window: NSPanel?
     private var timer: TimerService?
     private var prefs: PreferencesStore?
@@ -16,6 +16,23 @@ final class FloatingTimerWindowController {
             window?.makeKeyAndOrderFront(nil)
             return 
         }
+        createWindow()
+    }
+    
+    func hide() {
+        window?.close()
+        window = nil
+    }
+    
+    func toggle() {
+        if window == nil || window?.isVisible == false {
+            show()
+        } else {
+            hide()
+        }
+    }
+    
+    private func createWindow() {
         
         let content = TimerView()
             .environmentObject(AppEnvironment.shared.timer)
@@ -38,12 +55,20 @@ final class FloatingTimerWindowController {
         panel.isReleasedWhenClosed = false
         panel.standardWindowButton(.zoomButton)?.isHidden = true
         panel.standardWindowButton(.miniaturizeButton)?.isHidden = true
+        panel.standardWindowButton(.closeButton)?.isHidden = false
         panel.contentView = NSHostingView(rootView: content)
         panel.backgroundColor = .clear
         panel.isOpaque = false
+        panel.delegate = self
 
         window = panel
         panel.makeKeyAndOrderFront(nil)
+    }
+}
+
+extension FloatingTimerWindowController: NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        window = nil
     }
 }
 
@@ -53,6 +78,18 @@ struct TimerView: View {
 
     var body: some View {
         VStack(spacing: 16) {
+            HStack {
+                Spacer()
+                Button(action: {
+                    AppEnvironment.shared.floating.hide()
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.secondary.opacity(0.7))
+                }
+                .buttonStyle(.borderless)
+                .help("타이머 윈도우 닫기")
+            }
             ZStack {
                 Circle()
                     .stroke(lineWidth: 12)
